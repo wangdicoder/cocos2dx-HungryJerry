@@ -34,13 +34,13 @@ void BaseLayer::setBackgroundImage(int index)
 			   break;
 	}
 	case 1:
-		bg = Sprite::create("res/bg1-sheet0.png");
+		bg = Sprite::create("res/bg1-sheet.png");
 		break;
 	case 2:
-		bg = Sprite::create("res/bg2-sheet0.png");
+		bg = Sprite::create("res/bg2-sheet.png");
 		break;
 	case 3:
-		bg = Sprite::create("res/bg3-sheet0.png");
+		bg = Sprite::create("res/bg3-sheet.png");
 		break;
 	default:
 		break;

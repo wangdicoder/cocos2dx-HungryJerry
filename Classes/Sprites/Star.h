@@ -3,13 +3,13 @@
 
 USING_NS_CC;
 
-class Cheese : public Sprite
+class Star: public Sprite
 {
 public:
-	Cheese();
-	~Cheese();
+	Star();
+	~Star();
 	bool init();
-	CREATE_FUNC(Cheese);
+	CREATE_FUNC(Star);
 
 };
 
