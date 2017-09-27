@@ -16,10 +16,16 @@ public:
 	static Scene* createScene();
 	void setPhyWorld(PhysicsWorld *world) { m_world = world; };
 	void update(float dt);
+	bool onContactBegin(PhysicsContact& contact);
+	bool onTouchBegan(Touch *touch, Event *event);
+	void onTouchMoved(Touch *touch, Event *event);
+	void onTouchEnded(Touch *touch, Event *event);
 
 private:
 	PhysicsWorld *m_world;
 	Mouse* m_mouse;
 	Cheese* m_cheese;
+	Vector<Sprite*> m_dotVec;
+	float m_applyForce;
 };
 
