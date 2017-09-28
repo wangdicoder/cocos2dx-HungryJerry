@@ -10,6 +10,6 @@ public:
 	~Star();
 	bool init();
 	CREATE_FUNC(Star);
-
+	void remove();
 };
 

@@ -16,10 +16,22 @@ bool Mouse::init()
 		return false;
 
 	initWithFile("res/mouse_normal.png");
-	setAnchorPoint(Vec2(0.5f, 0));
 
-	runAction(RepeatForever::create(Sequence::createWithTwoActions(ScaleTo::create(0.3f, 1, 0.95f), ScaleTo::create(0.3f, 1))));
+	//runAction(RepeatForever::create(Sequence::createWithTwoActions(ScaleTo::create(0.3f, 1, 0.95f), ScaleTo::create(0.3f, 1))));
 
+	auto body = PhysicsBody::createCircle(getContentSize().width/2 - 30);
+	body->setDynamic(false);
+	body->setCategoryBitmask(0x01);
+	body->setCollisionBitmask(0x01);
+	body->setContactTestBitmask(0x01);
+	setPhysicsBody(body);
+
+	setTag(0);
 
 	return true;
+}
+
+void Mouse::playEatingAnimation()
+{
+	this->runAction(Animate::create(AnimationCache::getInstance()->getAnimation("eatingAnimation1")));
 }

@@ -25,8 +25,18 @@ bool Star::init()
 	body->setCategoryBitmask(0x01);
 	body->setContactTestBitmask(0x01);
 	body->setCollisionBitmask(0x00);
-	body->setTag(2);
 	setPhysicsBody(body);
 
+	setTag(2);
+
 	return true;
+}
+
+void Star::remove()
+{
+	auto particle = ParticleSystemQuad::create("res/stars.plist");
+	particle->setPosition(getPosition());
+	this->getParent()->addChild(particle);
+
+	this->removeFromParentAndCleanup(true);
 }

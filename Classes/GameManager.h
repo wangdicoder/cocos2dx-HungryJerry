@@ -11,6 +11,7 @@ public:
 	static GameManager* getInstance();
 	void showFullScreenAd();
 	void exitGame();
+	void createAnimation();
 
 private:
 	static GameManager* instance;

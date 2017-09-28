@@ -10,6 +10,6 @@ public:
 	~Mouse();
 	bool init();
 	CREATE_FUNC(Mouse);
-
+	void playEatingAnimation();
 };
 
