@@ -3,6 +3,7 @@
 #include "Layers\BaseLayer.h"
 #include "..\Sprites\Mouse.h"
 #include "..\Sprites\Cheese.h"
+#include "..\Sprites\SpiderNet.h"
 
 USING_NS_CC;
 
@@ -17,6 +18,7 @@ public:
 	void setPhyWorld(PhysicsWorld *world) { m_world = world; };
 	void update(float dt);
 	bool onContactBegin(PhysicsContact& contact);
+	void onContactSeperate(PhysicsContact& contact);
 	bool onTouchBegan(Touch *touch, Event *event);
 	void onTouchMoved(Touch *touch, Event *event);
 	void onTouchEnded(Touch *touch, Event *event);
@@ -27,5 +29,6 @@ private:
 	Cheese* m_cheese;
 	Vector<Sprite*> m_dotVec;
 	float m_applyForce;
+	SpiderNet* netWithCheese;
 };
 

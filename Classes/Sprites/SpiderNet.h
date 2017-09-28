@@ -10,5 +10,7 @@ public:
 	~SpiderNet();
 	bool init();
 	CREATE_FUNC(SpiderNet);
+	void playEffect();
+	void addPhysicsBody();
 };
 

@@ -16,13 +16,13 @@ bool SpiderNet::init()
 		return false;
 
 	initWithFile("res/ingame_telarania-sheet0.png");
-	setScale(1.9f);
 
-	auto body = PhysicsBody::createCircle(getContentSize().width*0.7f);
+	auto body = PhysicsBody::createCircle(getContentSize().width*0.25f);
 	body->setDynamic(false);
 	body->setCategoryBitmask(0x01);
 	body->setContactTestBitmask(0x01);
 	body->setCollisionBitmask(0x00);
+	body->setTag(2);
 	setPhysicsBody(body);
 
 	setTag(4);
@@ -30,3 +30,18 @@ bool SpiderNet::init()
 	return true;
 }
 
+void SpiderNet::playEffect()
+{
+	runAction(Sequence::createWithTwoActions(EaseSineIn::create(ScaleTo::create(0.2f, 1.07f, 1.07f)), EaseSineIn::create(ScaleTo::create(0.2f, 1, 1))));
+}
+
+void SpiderNet::addPhysicsBody()
+{
+	auto body = PhysicsBody::createCircle(getContentSize().width*0.25f);
+	body->setDynamic(false);
+	body->setCategoryBitmask(0x01);
+	body->setContactTestBitmask(0x01);
+	body->setCollisionBitmask(0x00);
+	body->setTag(2);
+	setPhysicsBody(body);
+}

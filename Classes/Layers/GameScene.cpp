@@ -5,7 +5,7 @@
 #include "..\Sprites\Board.h"
 #include "..\Sprites\Star.h"
 #include "..\Sprites\Bouncer.h"
-#include "..\Sprites\SpiderNet.h"
+
 
 #define FORCE_SCALE 6200
 
@@ -97,6 +97,7 @@ bool GameScene::init()
 
 	auto contactListener = EventListenerPhysicsContact::create();
 	contactListener->onContactBegin = CC_CALLBACK_1(GameScene::onContactBegin, this);
+	//contactListener->onContactSeperate = CC_CALLBACK_1(GameScene::onContactSeperate, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
 
 	scheduleUpdate();
@@ -138,12 +139,31 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			auto star = (Star*)nodeB;
 			star->remove();
 		}
+		else if (nodeA->getTag() == 4)
+		{
+			m_world->removeBody(2);
+			auto net = (SpiderNet*)nodeA;
+			net->playEffect();
+			netWithCheese = net;
+			m_cheese->removePhysicsBody(m_world);
+		}
+		else if (nodeB->getTag() == 4)
+		{
+			m_world->removeBody(2);
+			auto net = (SpiderNet*)nodeB;
+			net->playEffect();
+			netWithCheese = net;
+			m_cheese->removePhysicsBody(m_world);
+		}
 	}
-	
-			
 	
 	
 	return true;
+}
+
+void GameScene::onContactSeperate(PhysicsContact& contact)
+{
+	
 }
 
 bool GameScene::onTouchBegan(Touch *touch, Event *event)
@@ -156,6 +176,7 @@ bool GameScene::onTouchBegan(Touch *touch, Event *event)
 			m_dotVec.at(i)->setVisible(true);
 		}
 	}
+
 
 	return true;
 }
@@ -180,6 +201,14 @@ void GameScene::onTouchMoved(Touch *touch, Event *event)
 
 void GameScene::onTouchEnded(Touch *touch, Event *event)
 {
+	if (!m_cheese->getIsHasPhysBody())
+	{
+		m_cheese->addPhysicsBody();
+		scheduleOnce([&](float dt){
+			this->netWithCheese->addPhysicsBody();
+		}, 0.5f, "addNetBody");
+	}
+
 	if (m_cheese != nullptr)
 	{
 		for (int i = 0; i < m_dotVec.size(); i++)

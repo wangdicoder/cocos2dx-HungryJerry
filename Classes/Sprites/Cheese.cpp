@@ -24,9 +24,28 @@ bool Cheese::init()
 	normalBody->setCategoryBitmask(0x01);
 	normalBody->setContactTestBitmask(0x01);
 	normalBody->setCollisionBitmask(0x01);
+	normalBody->setTag(1);
 	setPhysicsBody(normalBody);
 
 	setTag(1);
+	isHasPhysBody = true;
 
 	return true;
+}
+
+void Cheese::addPhysicsBody()
+{
+	auto body = PhysicsBody::createCircle(this->getContentSize().width / 2 - 5);
+	body->setCategoryBitmask(0x01);
+	body->setContactTestBitmask(0x01);
+	body->setCollisionBitmask(0x01);
+	body->setTag(1);
+	setPhysicsBody(body);
+	isHasPhysBody = true;
+}
+
+void Cheese::removePhysicsBody(PhysicsWorld *world)
+{
+	world->removeBody(1);
+	isHasPhysBody = false;
 }
