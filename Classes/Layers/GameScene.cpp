@@ -6,6 +6,7 @@
 #include "..\Sprites\Star.h"
 #include "..\Sprites\Bouncer.h"
 #include "..\Sprites\Laser.h"
+#include "..\Sprites\Balloon.h"
 
 #define FORCE_SCALE 6200
 
@@ -89,6 +90,19 @@ bool GameScene::init()
 	laser1->setPosition(size.width / 2, size.height*0.25);
 	this->addChild(laser1);
 
+	/*auto balloon1 = Balloon::create();
+	balloon1->setPosition(size.width*0.2, size.height/2);
+	this->addChild(balloon1);
+
+	auto balloon2 = Balloon::create(YELLOW);
+	balloon2->setPosition(size.width*0.1, size.height / 2);
+	this->addChild(balloon2);
+
+	auto balloon3 = Balloon::create(BLUE);
+	balloon3->setPosition(size.width*0.3, size.height / 2);
+	this->addChild(balloon3);*/
+
+
 	for (int i = 0; i < 10; i++)
 	{
 		auto point = Sprite::create("res/ingame_circulo-sheet0.png");
@@ -133,7 +147,7 @@ void GameScene::update(float dt)
 	3: bouncer
 	4: spiderNet
 	5: laser
-	6:
+	6: balloon
 **/
 
 bool GameScene::onContactBegin(PhysicsContact& contact)
