@@ -66,4 +66,16 @@ void GameManager::createAnimation()
 		auto animation = Animation::createWithSpriteFrames(frames, 0.1f);
 		AnimationCache::getInstance()->addAnimation(animation, "eatingAnimation1");
 	}
+	{
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("res/laser.plist");
+	Vector<SpriteFrame*> frames;
+	char str[50] = { 0 };
+	for (int i = 0; i <= 3; i++)
+	{
+		sprintf(str, "laser%d.png", i);
+		frames.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(str));
+	}
+	auto animation = Animation::createWithSpriteFrames(frames, 0.04f, -1);
+	AnimationCache::getInstance()->addAnimation(animation, "laser");
+}
 }

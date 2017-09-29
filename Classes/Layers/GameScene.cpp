@@ -5,7 +5,7 @@
 #include "..\Sprites\Board.h"
 #include "..\Sprites\Star.h"
 #include "..\Sprites\Bouncer.h"
-
+#include "..\Sprites\Laser.h"
 
 #define FORCE_SCALE 6200
 
@@ -77,6 +77,18 @@ bool GameScene::init()
 	net->setPosition(size.width/2, size.height/2);
 	this->addChild(net);
 
+	auto net1 = SpiderNet::create();
+	net1->setPosition(size.width / 2, size.height *0.8);
+	this->addChild(net1);
+
+	auto laser = Laser::create();
+	laser->setPosition(size.width/2, size.height*0.1);
+	this->addChild(laser);
+
+	auto laser1 = Laser::create(1);
+	laser1->setPosition(size.width / 2, size.height*0.25);
+	this->addChild(laser1);
+
 	for (int i = 0; i < 10; i++)
 	{
 		auto point = Sprite::create("res/ingame_circulo-sheet0.png");
@@ -113,6 +125,17 @@ void GameScene::update(float dt)
 
 }
 
+/**
+	tag
+	0: mouse
+	1: cheese
+	2: star
+	3: bouncer
+	4: spiderNet
+	5: laser
+	6:
+**/
+
 bool GameScene::onContactBegin(PhysicsContact& contact)
 {
 	auto nodeA = contact.getShapeA()->getBody()->getNode();
@@ -141,19 +164,26 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 		}
 		else if (nodeA->getTag() == 4)
 		{
-			m_world->removeBody(2);
 			auto net = (SpiderNet*)nodeA;
 			net->playEffect();
+			net->getPhysicsBody()->setContactTestBitmask(0x00);
 			netWithCheese = net;
 			m_cheese->removePhysicsBody(m_world);
 		}
 		else if (nodeB->getTag() == 4)
 		{
-			m_world->removeBody(2);
 			auto net = (SpiderNet*)nodeB;
 			net->playEffect();
+			net->getPhysicsBody()->setContactTestBitmask(0x00);
 			netWithCheese = net;
 			m_cheese->removePhysicsBody(m_world);
+		}
+		else if (nodeA->getTag() == 5 || nodeB->getTag() == 5)
+		{
+			m_cheese->removeFromParentAndCleanup(true);
+			scheduleOnce([&](float dt){
+				Director::getInstance()->replaceScene(TransitionFade::create(0.8f, GameScene::createScene()));
+			}, 1.0f, "replay");
 		}
 	}
 	
@@ -205,8 +235,8 @@ void GameScene::onTouchEnded(Touch *touch, Event *event)
 	{
 		m_cheese->addPhysicsBody();
 		scheduleOnce([&](float dt){
-			this->netWithCheese->addPhysicsBody();
-		}, 0.5f, "addNetBody");
+			this->netWithCheese->getPhysicsBody()->setContactTestBitmask(0x01);
+		}, 0.4f, "addNetBody");
 	}
 
 	if (m_cheese != nullptr)

@@ -32,7 +32,7 @@ bool SpiderNet::init()
 
 void SpiderNet::playEffect()
 {
-	runAction(Sequence::createWithTwoActions(EaseSineIn::create(ScaleTo::create(0.2f, 1.07f, 1.07f)), EaseSineIn::create(ScaleTo::create(0.2f, 1, 1))));
+	runAction(Sequence::createWithTwoActions(EaseSineIn::create(ScaleTo::create(0.15f, 1.03f, 1.03f)), EaseSineIn::create(ScaleTo::create(0.15f, 1, 1))));
 }
 
 void SpiderNet::addPhysicsBody()
