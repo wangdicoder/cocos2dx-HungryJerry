@@ -10,16 +10,16 @@ Laser::~Laser()
 {
 }
 
-Laser* Laser::create(int index)
+Laser* Laser::create(int index, bool blink)
 {
 	auto ref = new Laser();
-	ref->init(index);
+	ref->init(index, blink);
 	ref->autorelease();
 
 	return ref;
 }
 
-bool Laser::init(int index)
+bool Laser::init(int index, bool blink)
 {
 	if (!Node::init())
 		return false;
@@ -71,6 +71,12 @@ bool Laser::init(int index)
 	auto bodyRight = PhysicsBody::createBox(laserRight->getContentSize());
 	bodyRight->setDynamic(false);
 	laserRight->setPhysicsBody(bodyRight);
+
+	if (blink)
+	{
+		float delayTime = 1.2f;
+		laser->runAction(RepeatForever::create(Sequence::create(DelayTime::create(delayTime), Place::create(Vec2(3000, 3000)), DelayTime::create(delayTime), Place::create(Vec2(0, 0)), NULL)));
+	}
 	
 	return true;
 }

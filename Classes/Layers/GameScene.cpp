@@ -85,7 +85,7 @@ bool GameScene::init()
 	laser->setPosition(size.width/2, size.height*0.1);
 	this->addChild(laser);
 
-	auto laser1 = Laser::create(1);
+	auto laser1 = Laser::create(1, true);
 	laser1->setPosition(size.width / 2, size.height*0.25);
 	this->addChild(laser1);
 

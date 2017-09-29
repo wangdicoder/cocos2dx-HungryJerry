@@ -8,7 +8,7 @@ class Laser: public Node
 public:
 	Laser();
 	~Laser();
-	bool init(int index);
-	static Laser* create(int index = 0);
+	bool init(int index, bool blink);
+	static Laser* create(int index = 0, bool blink = false);
 };
 
