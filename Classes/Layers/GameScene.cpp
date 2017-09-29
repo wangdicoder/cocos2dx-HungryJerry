@@ -7,6 +7,7 @@
 #include "..\Sprites\Bouncer.h"
 #include "..\Sprites\Laser.h"
 #include "..\Sprites\Balloon.h"
+#include "..\Sprites\Spike.h"
 
 #define FORCE_SCALE 6200
 
@@ -103,6 +104,10 @@ bool GameScene::init()
 	this->addChild(balloon3);*/
 
 
+	auto spike = Spike::create();
+	spike->setPosition(size.width *0.3, size.height * 0.8);
+	this->addChild(spike);
+
 	for (int i = 0; i < 10; i++)
 	{
 		auto point = Sprite::create("res/ingame_circulo-sheet0.png");
@@ -148,6 +153,7 @@ void GameScene::update(float dt)
 	4: spiderNet
 	5: laser
 	6: balloon
+	7: thorn
 **/
 
 bool GameScene::onContactBegin(PhysicsContact& contact)
@@ -192,7 +198,7 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			netWithCheese = net;
 			m_cheese->removePhysicsBody(m_world);
 		}
-		else if (nodeA->getTag() == 5 || nodeB->getTag() == 5)
+		else if (nodeA->getTag() == 5 || nodeB->getTag() == 5 || nodeA->getTag() == 7 || nodeB->getTag() == 7)
 		{
 			m_cheese->removeFromParentAndCleanup(true);
 			scheduleOnce([&](float dt){
