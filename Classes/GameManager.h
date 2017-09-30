@@ -12,6 +12,7 @@ public:
 	void showFullScreenAd();
 	void exitGame();
 	void createAnimation();
+	CC_SYNTHESIZE(int, levelNum, LevelNum);
 
 private:
 	static GameManager* instance;

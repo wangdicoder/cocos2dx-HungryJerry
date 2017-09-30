@@ -2,6 +2,7 @@
 #include "SimpleAudioEngine.h"
 #include "Layers\StartScene.h"
 #include "Layers\GameScene.h"
+#include "Layers\SelectScene.h"
 
 USING_NS_CC;
 
@@ -41,9 +42,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-	//auto scene = StartScene::createScene();
-	auto scene = GameScene::createScene();
-
+	auto scene = StartScene::createScene();
+	//auto scene = GameScene::createScene(); 
+	//auto scene = SelectScene::createScene();
     // run
     director->runWithScene(scene);
 

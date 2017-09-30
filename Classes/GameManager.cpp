@@ -78,4 +78,16 @@ void GameManager::createAnimation()
 		auto animation = Animation::createWithSpriteFrames(frames, 0.04f, -1);
 		AnimationCache::getInstance()->addAnimation(animation, "laser");
 	}
+	{
+		SpriteFrameCache::getInstance()->addSpriteFramesWithFile("res/start_mouse.plist");
+		Vector<SpriteFrame*> frames;
+		char str[50] = { 0 };
+		for (int i = 0; i <= 8; i++)
+		{
+			sprintf(str, "menu_rata-sheet%d.png", i);
+			frames.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(str));
+		}
+		auto animation = Animation::createWithSpriteFrames(frames, 0.2f, -1);
+		AnimationCache::getInstance()->addAnimation(animation, "mouse_home");
+	}
 }

@@ -32,6 +32,7 @@ void BaseLayer::setBackgroundImage(int index)
 			   //title->setScale(2.0f);
 			   title->setPosition(size.width / 2, size.height * 0.67);
 			   this->addChild(title, 1);
+			   title->runAction(RepeatForever::create(Sequence::create(EaseSineInOut::create(ScaleTo::create(0.5f, 1.02f)), EaseSineInOut::create(ScaleTo::create(0.5f, 1.0f)), NULL)));
 			   break;
 	}
 	case 1:

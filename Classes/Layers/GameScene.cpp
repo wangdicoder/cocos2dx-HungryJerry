@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "StartScene.h"
 #include "GameManager.h"
+#include "PauseLayer.h"
 #include "GameOverLayer.h"
 #include "..\Sprites\Board.h"
 #include "..\Sprites\Star.h"
@@ -24,7 +25,7 @@ Scene* GameScene::createScene()
 {
 	auto scene = Scene::createWithPhysics();
 	scene->getPhysicsWorld()->setGravity(Vect(0, -1500));//-900
-	scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
+//	scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
 	scene->getPhysicsWorld()->setAutoStep(false);
 	auto layer = GameScene::create();
 	layer->setPhyWorld(scene->getPhysicsWorld());
@@ -50,7 +51,7 @@ bool GameScene::init()
 
 	initUI();
 
-	int levelNum = 30;
+	int levelNum = 1;
 	//read tiledMap info and render objects
 	char str[30] = { 0 };
 	sprintf(str, "levels/level%d.tmx", levelNum);
@@ -219,7 +220,10 @@ void GameScene::initUI()
 	auto replayBtn = MenuItemImage::create("res/btnreset-sheet0.png", "res/btnreset-sheet1.png", CC_CALLBACK_1(GameScene::btnCallback, this));
 	replayBtn->setPosition(size.width - replayBtn->getContentSize().width/2 - 5, size.height - replayBtn->getContentSize().height/2 - 5);
 	replayBtn->setTag(0);
-	auto menu = Menu::create(replayBtn, NULL);
+	auto pauseBtn = MenuItemImage::create("res/btnpausa-sheet0.png", "res/btnpausa-sheet1.png", CC_CALLBACK_1(GameScene::btnCallback, this));
+	pauseBtn->setPosition(replayBtn->getPositionX() - pauseBtn->getContentSize().width, replayBtn->getPositionY());
+	pauseBtn->setTag(1);
+	auto menu = Menu::create(replayBtn, pauseBtn, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu);
 
@@ -427,5 +431,10 @@ void GameScene::btnCallback(Ref *pSender)
 	if (tag == 0)
 	{
 		Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::createScene()));
+	}
+	else if (tag == 1)
+	{
+		Director::getInstance()->pause();
+		this->addChild(PauseLayer::create(), 5);
 	}
 }
