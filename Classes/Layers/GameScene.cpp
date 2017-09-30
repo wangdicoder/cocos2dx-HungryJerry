@@ -14,6 +14,8 @@
 GameScene::GameScene()
 {
 	touchCheese = nullptr;
+	starNum = 0;
+	score = 0;
 }
 
 
@@ -40,18 +42,28 @@ bool GameScene::init()
 		return false;
 
 	GameManager::getInstance()->createAnimation();
-	setBackgroundImage(1);
+	GameManager::getInstance()->setLevelNum(1);
+
+	int levelNum = GameManager::getInstance()->getLevelNum();
+	if (levelNum > 14)
+		setBackgroundImage(3);
+	else if (levelNum > 7)
+		setBackgroundImage(2);
+	else if (levelNum > 0)
+		setBackgroundImage(1);
+
 
 	auto edge = Node::create();
+	edge->setTag(10);
 	auto edgeBody = PhysicsBody::createEdgeBox(size, PHYSICSBODY_MATERIAL_DEFAULT, 3);
+	edgeBody->setContactTestBitmask(0x01);
 	edge->setPosition(size.width / 2, size.height / 2);
 	edge->setPhysicsBody(edgeBody);
 	this->addChild(edge);
-	edge->setTag(0);
 
 	initUI();
 
-	int levelNum = 1;
+	
 	//read tiledMap info and render objects
 	char str[30] = { 0 };
 	sprintf(str, "levels/level%d.tmx", levelNum);
@@ -217,11 +229,34 @@ bool GameScene::init()
 
 void GameScene::initUI()
 {
+	starPanel = Sprite::create("res/game_star0.png");
+	starPanel->setPosition(starPanel->getContentSize().width/2 + 10, size.height - starPanel->getContentSize().height/2 -10);
+	this->addChild(starPanel, 6);
+
+	auto scorePanel = Sprite::create("res/ui_fondo-sheet0.png");
+	scorePanel->setPosition(size.width/2, size.height - scorePanel->getContentSize().height/2 - 10);
+	this->addChild(scorePanel);
+
+	char str[50] = { 0 };
+	sprintf(str, "Level: %d", GameManager::getInstance()->getLevelNum());
+	auto label = Label::createWithBMFont("res/myfont.fnt", str);
+	label->setAnchorPoint(Vec2(0, 0.5f));
+	label->setPosition(20, scorePanel->getContentSize().height/2 - 5);
+	label->setScale(1.3f);
+	scorePanel->addChild(label);
+
+	sprintf(str, "Score: %d", score);
+	scoreLabel = Label::createWithBMFont("res/myfont.fnt", str);
+	scoreLabel->setAnchorPoint(Vec2(1, 0.5f));
+	scoreLabel->setPosition(scorePanel->getContentSize().width - 10, scorePanel->getContentSize().height / 2 - 5);
+	scoreLabel->setScale(1.3f);
+	scorePanel->addChild(scoreLabel);
+	
 	auto replayBtn = MenuItemImage::create("res/btnreset-sheet0.png", "res/btnreset-sheet1.png", CC_CALLBACK_1(GameScene::btnCallback, this));
 	replayBtn->setPosition(size.width - replayBtn->getContentSize().width/2 - 5, size.height - replayBtn->getContentSize().height/2 - 5);
 	replayBtn->setTag(0);
 	auto pauseBtn = MenuItemImage::create("res/btnpausa-sheet0.png", "res/btnpausa-sheet1.png", CC_CALLBACK_1(GameScene::btnCallback, this));
-	pauseBtn->setPosition(replayBtn->getPositionX() - pauseBtn->getContentSize().width, replayBtn->getPositionY());
+	pauseBtn->setPosition(replayBtn->getPositionX() - pauseBtn->getContentSize().width - 20, replayBtn->getPositionY());
 	pauseBtn->setTag(1);
 	auto menu = Menu::create(replayBtn, pauseBtn, NULL);
 	menu->setPosition(Vec2::ZERO);
@@ -252,7 +287,9 @@ void GameScene::update(float dt)
 	{
 		unscheduleUpdate();
 		scheduleOnce([&](float dt){
-			this->addChild(GameOverLayer::create(), 10);
+			GameManager::getInstance()->setStarNum(starNum);
+			starPanel->setZOrder(1);
+			this->addChild(GameOverLayer::create(), 5);
 		}, 0.8f, "success");
 	}
 }
@@ -267,6 +304,7 @@ void GameScene::update(float dt)
 	5: laser
 	6: balloon
 	7: thorn
+	10: edge
 	**/
 
 bool GameScene::onContactBegin(PhysicsContact& contact)
@@ -281,6 +319,10 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 		if (nodeA->getTag() == 0 || nodeB->getTag() == 0)
 		{
 			m_mouse->playEatingAnimation();
+			auto particle = ParticleSystemQuad::create("res/cheese_eating.plist");
+			particle->setPosition(m_mouse->getPosition());
+			this->addChild(particle);
+
 			Cheese* cheese = NULL;
 			if (nodeA->getTag() == 1)
 				cheese = static_cast<Cheese*>(nodeA);
@@ -293,11 +335,23 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 		{
 			auto star = (Star*)nodeA;
 			star->remove();
+			starNum++;
+			char str[20] = { 0 };
+			sprintf(str, "game_star%d.png", starNum);
+			starPanel->setSpriteFrame(str);
+			sprintf(str, "Score: %d", starNum * 250);
+			scoreLabel->setString(str);
 		}
 		else if (nodeB != nullptr && nodeB->getTag() == 2)
 		{
 			auto star = (Star*)nodeB;
 			star->remove();
+			starNum++;
+			char str[20] = { 0 };
+			sprintf(str, "game_star%d.png", starNum);
+			starPanel->setSpriteFrame(str);
+			sprintf(str, "Score: %d", starNum * 250);
+			scoreLabel->setString(str);
 		}
 		else if (nodeA->getTag() == 3 )
 		{
@@ -331,13 +385,18 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			Cheese* cheese = (Cheese*)nodeA;
 			cheese->removePhysicsBody();
 		}
-		else if (nodeA->getTag() == 5 || nodeB->getTag() == 5 || nodeA->getTag() == 7 || nodeB->getTag() == 7)
+		else if (nodeA->getTag() == 5 || nodeB->getTag() == 5 || nodeA->getTag() == 7 || nodeB->getTag() == 7 || nodeA->getTag() == 10 || nodeB->getTag() == 10)
 		{
 			Cheese* cheese = NULL;
 			if (nodeA->getTag() == 1)
 				cheese = static_cast<Cheese*>(nodeA);
 			else if (nodeB->getTag() == 1)
 				cheese = static_cast<Cheese*>(nodeB);
+
+			auto particle = ParticleSystemQuad::create("res/cheese_bomb.plist");
+			particle->setPosition(cheese->getPosition());
+			this->addChild(particle);
+
 			cheese->removeFromParentAndCleanup(true);
 
 			scheduleOnce([&](float dt){

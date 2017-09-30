@@ -37,6 +37,9 @@ private:
 	Vector<Cheese*> cheeseVec;
 	Cheese* touchCheese;
 	Vector<Balloon*> balloonVec;
-
+	int starNum;
+	Sprite* starPanel;
+	int score;
+	Label* scoreLabel;
 };
 

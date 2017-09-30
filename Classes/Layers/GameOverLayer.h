@@ -12,6 +12,8 @@ public:
 	CREATE_FUNC(GameOverLayer);
 	virtual bool init() override;
 	static Scene* createScene();
+	void createStar(Vec2 panelPos, int num);
+	void createCircle(Vec2 pos);
 
 private:
 	void menuCallback(Ref* sender);

@@ -13,6 +13,7 @@ public:
 	void exitGame();
 	void createAnimation();
 	CC_SYNTHESIZE(int, levelNum, LevelNum);
+	CC_SYNTHESIZE(int, starNum, StarNum);
 
 private:
 	static GameManager* instance;
