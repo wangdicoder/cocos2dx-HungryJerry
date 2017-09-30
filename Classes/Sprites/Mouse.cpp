@@ -15,7 +15,7 @@ bool Mouse::init()
 	if (!Sprite::init())
 		return false;
 
-	initWithFile("res/mouse_normal.png");
+	initWithSpriteFrameName("mouse_normal.png");
 
 	//runAction(RepeatForever::create(Sequence::createWithTwoActions(ScaleTo::create(0.3f, 1, 0.95f), ScaleTo::create(0.3f, 1))));
 

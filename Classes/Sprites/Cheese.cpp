@@ -44,8 +44,8 @@ void Cheese::addPhysicsBody()
 	isHasPhysBody = true;
 }
 
-void Cheese::removePhysicsBody(PhysicsWorld *world)
+void Cheese::removePhysicsBody()
 {
-	world->removeBody(1);
+	getPhysicsBody()->removeFromWorld();
 	isHasPhysBody = false;
 }

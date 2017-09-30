@@ -11,7 +11,7 @@ public:
 	bool init();
 	CREATE_FUNC(Cheese);
 	void addPhysicsBody();
-	void removePhysicsBody(PhysicsWorld *world);
+	void removePhysicsBody();
 	CC_SYNTHESIZE(bool, isHasPhysBody, IsHasPhysBody);
 };
 

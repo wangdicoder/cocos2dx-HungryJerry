@@ -13,6 +13,7 @@
 
 GameScene::GameScene()
 {
+	touchCheese = nullptr;
 }
 
 
@@ -48,9 +49,11 @@ bool GameScene::init()
 	this->addChild(edge);
 	edge->setTag(0);
 
+	initUI();
+
 	//read tiledMap info and render objects
 	char str[30] = { 0 };
-	sprintf(str, "levels/level%d.tmx", 1);
+	sprintf(str, "levels/level%d.tmx", 6);
 
 	auto map = TMXTiledMap::create(str);
 	map->setAnchorPoint(Vec2(0.5f, 0.5f));
@@ -73,9 +76,10 @@ bool GameScene::init()
 			board->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
 			this->addChild(board);
 
-			m_cheese = Cheese::create();
-			m_cheese->setPosition(board->getPositionX(), board->getPositionY() + m_cheese->getContentSize().height / 2 + board->getContentSize().height / 2);
-			this->addChild(m_cheese);
+			auto cheese = Cheese::create();
+			cheese->setPosition(board->getPositionX(), board->getPositionY() + cheese->getContentSize().height / 2 + board->getContentSize().height / 2);
+			this->addChild(cheese, 1);
+			cheeseVec.pushBack(cheese);
 		}
 		else if (item["type"].asString() == "star")
 		{
@@ -92,6 +96,12 @@ bool GameScene::init()
 			m_mouse = Mouse::create();
 			m_mouse->setPosition(board->getPositionX(), board->getPositionY() + m_mouse->getContentSize().height / 2 + board->getContentSize().height / 2);
 			this->addChild(m_mouse);
+		}
+		else if (item["type"].asString() == "board")
+		{
+			auto board = Board::create(item["size"].asInt());
+			board->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(board);
 		}
 		else if (item["type"].asString() == "bouncer")
 		{
@@ -143,66 +153,6 @@ bool GameScene::init()
 		}
 	}
 
-
-	/*auto board1 = Board::create();
-	board1->setPosition(size.width*0.15f, size.height *0.2);
-	this->addChild(board1);
-
-	m_cheese = Cheese::create();
-	m_cheese->setPosition(board1->getPositionX(), board1->getPositionY() + m_cheese->getContentSize().height / 2 + board1->getContentSize().height);
-	this->addChild(m_cheese, 1);*/
-
-	/*auto board2 = Board::create();
-	board2->setPosition(size.width*0.8, size.height*0.5);
-	this->addChild(board2);
-
-	m_mouse = Mouse::create();
-	m_mouse->setPosition(board2->getPositionX(), board2->getPositionY() + board2->getContentSize().height / 2 + m_mouse->getContentSize().height / 2);
-	this->addChild(m_mouse);
-
-	auto star = Star::create();
-	star->setPosition(size.width*0.3, size.height*0.3);
-	this->addChild(star);
-
-
-	auto bouncer = Bouncer::create();
-	bouncer->setPosition(size.width * 0.6, size.height * 0.15);
-	bouncer->runAction(RotateTo::create(0, -30));
-	this->addChild(bouncer);*/
-
-	/*auto net = SpiderNet::create();
-	net->setPosition(size.width / 2, size.height / 2);
-	this->addChild(net);
-
-	auto net1 = SpiderNet::create();
-	net1->setPosition(size.width / 2, size.height *0.8);
-	this->addChild(net1);
-
-	auto laser = Laser::create();
-	laser->setPosition(size.width / 2, size.height*0.1);
-	this->addChild(laser);
-
-	auto laser1 = Laser::create(1, true);
-	laser1->setPosition(size.width / 2, size.height*0.25);
-	this->addChild(laser1);
-*/
-	/*auto balloon1 = Balloon::create();
-	balloon1->setPosition(size.width*0.2, size.height/2);
-	this->addChild(balloon1);
-
-	auto balloon2 = Balloon::create(YELLOW);
-	balloon2->setPosition(size.width*0.1, size.height / 2);
-	this->addChild(balloon2);
-
-	auto balloon3 = Balloon::create(BLUE);
-	balloon3->setPosition(size.width*0.3, size.height / 2);
-	this->addChild(balloon3);*/
-
-
-	/*auto spike = Spike::create();
-	spike->setPosition(size.width *0.3, size.height * 0.8);
-	this->addChild(spike);*/
-
 	for (int i = 0; i < 10; i++)
 	{
 		auto point = Sprite::create("res/ingame_circulo-sheet0.png");
@@ -230,13 +180,30 @@ bool GameScene::init()
 	return true;
 }
 
+void GameScene::initUI()
+{
+	auto replayBtn = MenuItemImage::create("res/btnreset-sheet0.png", "res/btnreset-sheet1.png", CC_CALLBACK_1(GameScene::btnCallback, this));
+	replayBtn->setPosition(size.width - replayBtn->getContentSize().width/2 - 5, size.height - replayBtn->getContentSize().height/2 - 5);
+	replayBtn->setTag(0);
+	auto menu = Menu::create(replayBtn, NULL);
+	menu->setPosition(Vec2::ZERO);
+	this->addChild(menu);
+
+}
+
 void GameScene::update(float dt)
 {
 	//fix physics bug
 	for (int i = 0; i < 3; ++i)
 		m_world->step(1 / 180.0f);
 
-
+	if (cheeseVec.size() <= 0)
+	{
+		unscheduleUpdate();
+		scheduleOnce([&](float dt){
+			this->addChild(GameOverLayer::create(), 10);
+		}, 0.8f, "success");
+	}
 }
 
 /**
@@ -261,11 +228,13 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 		if (nodeA->getTag() == 0 || nodeB->getTag() == 0)
 		{
 			m_mouse->playEatingAnimation();
-			m_cheese->removeFromParentAndCleanup(true);
-			m_cheese = nullptr;
-			scheduleOnce([&](float dt){
-				this->addChild(GameOverLayer::create());
-			}, 0.8f, "success");
+			Cheese* cheese = NULL;
+			if (nodeA->getTag() == 1)
+				cheese = static_cast<Cheese*>(nodeA);
+			else if (nodeB->getTag() == 1)
+				cheese = static_cast<Cheese*>(nodeB);
+			cheeseVec.eraseObject(cheese);
+			cheese->removeFromParentAndCleanup(true);
 		}
 		else if (nodeA->getTag() == 2)
 		{
@@ -280,14 +249,14 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 		else if (nodeA->getTag() == 3 )
 		{
 			auto bouncer = (Bouncer*)nodeA;
-			float radians = CC_DEGREES_TO_RADIANS(bouncer->getRotation());
-			m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
+			float radians = CC_DEGREES_TO_RADIANS(bouncer->getRotation() - 90);
+			//m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE * 2, sin(radians) * m_applyForce * FORCE_SCALE * 2));
 		}
 		else if (nodeB->getTag() == 3)
 		{
 			auto bouncer = (Bouncer*)nodeB;
-			float radians = CC_DEGREES_TO_RADIANS(bouncer->getRotation());
-			m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
+			float radians = CC_DEGREES_TO_RADIANS(bouncer->getRotation() - 90);
+			//m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE * 2, sin(radians) * m_applyForce * FORCE_SCALE * 2));
 		}
 		else if (nodeA->getTag() == 4)
 		{
@@ -295,7 +264,9 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			net->playEffect();
 			net->getPhysicsBody()->setContactTestBitmask(0x00);
 			netWithCheese = net;
-			m_cheese->removePhysicsBody(m_world);
+
+			Cheese* cheese = (Cheese*)nodeB;
+			cheese->removePhysicsBody();
 		}
 		else if (nodeB->getTag() == 4)
 		{
@@ -303,11 +274,19 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			net->playEffect();
 			net->getPhysicsBody()->setContactTestBitmask(0x00);
 			netWithCheese = net;
-			m_cheese->removePhysicsBody(m_world);
+
+			Cheese* cheese = (Cheese*)nodeA;
+			cheese->removePhysicsBody();
 		}
 		else if (nodeA->getTag() == 5 || nodeB->getTag() == 5 || nodeA->getTag() == 7 || nodeB->getTag() == 7)
 		{
-			m_cheese->removeFromParentAndCleanup(true);
+			Cheese* cheese = NULL;
+			if (nodeA->getTag() == 1)
+				cheese = static_cast<Cheese*>(nodeA);
+			else if (nodeB->getTag() == 1)
+				cheese = static_cast<Cheese*>(nodeB);
+			cheese->removeFromParentAndCleanup(true);
+
 			scheduleOnce([&](float dt){
 				Director::getInstance()->replaceScene(TransitionFade::create(0.8f, GameScene::createScene()));
 			}, 1.0f, "replay");
@@ -325,61 +304,79 @@ void GameScene::onContactSeperate(PhysicsContact& contact)
 
 bool GameScene::onTouchBegan(Touch *touch, Event *event)
 {
-	if (m_cheese != nullptr)
+	if (cheeseVec.size() > 0)
 	{
-		for (int i = 0; i < m_dotVec.size(); i++)
+		for (int i = 0; i < cheeseVec.size(); i++)
 		{
-			m_dotVec.at(i)->setPosition(m_cheese->getPosition());
-			m_dotVec.at(i)->setVisible(true);
+			if (cheeseVec.at(i)->getBoundingBox().containsPoint(touch->getLocation()))
+			{
+				touchCheese = cheeseVec.at(i);
+			}
+		}
+
+		if (touchCheese != nullptr)
+		{
+			for (int i = 0; i < m_dotVec.size(); i++)
+			{
+				m_dotVec.at(i)->setPosition(touchCheese->getPosition());
+				m_dotVec.at(i)->setVisible(true);
+			}
 		}
 	}
-
 
 	return true;
 }
 
 void GameScene::onTouchMoved(Touch *touch, Event *event)
 {
-	if (m_cheese != nullptr)
+	if (touchCheese != nullptr)
 	{
-		Vec2 rotateVector = touch->getLocation() - m_cheese->getPosition();
+		Vec2 rotateVector = touch->getLocation() - touchCheese->getPosition();
 		float radians = rotateVector.getAngle();
-		m_applyForce = 0.2 * sqrt(pow(touch->getLocation().x - m_cheese->getPosition().x, 2) + pow(touch->getLocation().y - m_cheese->getPosition().y, 2));
+		m_applyForce = 0.2 * sqrt(pow(touch->getLocation().x - touchCheese->getPosition().x, 2) + pow(touch->getLocation().y - touchCheese->getPosition().y, 2));
 		if (m_applyForce >= 140)
 			m_applyForce = 140;
 
 		for (int i = 0; i < m_dotVec.size(); i++)
 		{
 			auto point = m_dotVec.at(i);
-			point->setPosition(m_cheese->getPositionX() + m_applyForce * cos(radians) * i, m_cheese->getPositionY() + m_applyForce * sin(radians) * i - 0.5 * 10 * i * i);
+			point->setPosition(touchCheese->getPositionX() + m_applyForce * cos(radians) * i, touchCheese->getPositionY() + m_applyForce * sin(radians) * i - 0.5 * 10 * i * i);
 		}
 	}
 }
 
 void GameScene::onTouchEnded(Touch *touch, Event *event)
 {
-	if (!m_cheese->getIsHasPhysBody())
+	if (touchCheese != nullptr && !touchCheese->getIsHasPhysBody())
 	{
-		m_cheese->addPhysicsBody();
+		touchCheese->addPhysicsBody();
 		scheduleOnce([&](float dt){
 			this->netWithCheese->getPhysicsBody()->setContactTestBitmask(0x01);
 		}, 0.4f, "addNetBody");
 	}
 
-	if (m_cheese != nullptr)
+	if (touchCheese != nullptr)
 	{
 		for (int i = 0; i < m_dotVec.size(); i++)
 		{
 			m_dotVec.at(i)->setVisible(false);
 		}
 
-		Vec2 rotateVector = touch->getLocation() - m_cheese->getPosition();
+		Vec2 rotateVector = touch->getLocation() - touchCheese->getPosition();
 		float radians = rotateVector.getAngle();
-		m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
+		touchCheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
 	}
+
+	touchCheese = nullptr;
 }
 
-void GameScene::btnCallback(Ref *pSender, Widget::TouchEventType type)
+void GameScene::btnCallback(Ref *pSender)
 {
+	auto menuItem = static_cast<MenuItem*>(pSender);
+	int tag = menuItem->getTag();
 
+	if (tag == 0)
+	{
+		Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::createScene()));
+	}
 }

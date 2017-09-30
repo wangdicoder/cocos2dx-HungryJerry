@@ -24,16 +24,17 @@ public:
 	bool onTouchBegan(Touch *touch, Event *event);
 	void onTouchMoved(Touch *touch, Event *event);
 	void onTouchEnded(Touch *touch, Event *event);
+	void initUI();
 
 private:
 	PhysicsWorld *m_world;
 	Mouse* m_mouse;
-	Cheese* m_cheese;
 	Vector<Sprite*> m_dotVec;
 	float m_applyForce;
 	SpiderNet* netWithCheese;
-	void btnCallback(Ref *pSender, Widget::TouchEventType type);
-
+	void btnCallback(Ref *pSender);
+	Vector<Cheese*> cheeseVec;
+	Cheese* touchCheese;
 
 };
 
