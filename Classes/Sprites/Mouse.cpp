@@ -17,6 +17,17 @@ bool Mouse::init()
 
 	initWithSpriteFrameName("mouse_normal.png");
 
+	/*auto earLeft = Sprite::create("res/menu_rata_oreja-sheet0.png");
+	earLeft->setPosition(earLeft->getContentSize().width / 2 * 0.5f, getContentSize().height * 0.8f);
+	earLeft->setScale(0.5f);
+	this->addChild(earLeft);
+
+	auto earRight = Sprite::create("res/menu_rata_oreja-sheet0.png");
+	earLeft->setPosition(getContentSize().width - earRight->getContentSize().width / 2 * 0.5f, getContentSize().height * 0.8f);
+	earRight->setScale(earLeft->getScale());
+	earRight->setFlippedX(true);
+	this->addChild(earRight);*/
+
 	chair = Sprite::create("res/sprite2-sheet0.png");
 	chair->setPosition(getContentSize().width/2, getContentSize().height/2 + 22);
 	addChild(chair);

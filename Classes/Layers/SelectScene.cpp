@@ -2,6 +2,12 @@
 #include "GameScene.h"
 #include "GameManager.h"
 #include "StartScene.h"
+#include "SimpleAudioEngine.h"
+
+using namespace CocosDenshion;
+
+#define BTN "res/btnclick.ogg"
+#define BGM "res/musicselector.ogg"
 
 SelectScene::SelectScene()
 {
@@ -182,6 +188,8 @@ bool SelectScene::init()
 	scoreLabel->setPosition(Vec2(scoreContainer->getContentSize().width - 10, scoreContainer->getContentSize().height / 2));
 	scoreContainer->addChild(scoreLabel);
 
+	SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
+
 	return true;
 }
 
@@ -213,6 +221,6 @@ void SelectScene::btnCallback(Ref *pSender, Widget::TouchEventType type)
 			GameManager::getInstance()->setLevelNum(tag);
 			Director::getInstance()->replaceScene(TransitionFade::create(0.8f, GameScene::createScene()));
 		}
-		//SimpleAudioEngine::getInstance()->playEffect(BTN);
+		SimpleAudioEngine::getInstance()->playEffect(BTN);
 	}
 }

@@ -1,5 +1,9 @@
 #include "Star.h"
+#include "SimpleAudioEngine.h"
 
+using namespace CocosDenshion;
+
+#define EFFECT "res/estrellasale.ogg"
 
 Star::Star()
 {
@@ -39,4 +43,5 @@ void Star::remove()
 	this->getParent()->addChild(particle);
 
 	this->removeFromParentAndCleanup(true);
+	SimpleAudioEngine::getInstance()->playEffect(EFFECT);
 }

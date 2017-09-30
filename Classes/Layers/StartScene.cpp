@@ -2,6 +2,12 @@
 #include "GameScene.h"
 #include "GameManager.h"
 #include "SelectScene.h"
+#include "SimpleAudioEngine.h"
+
+using namespace CocosDenshion;
+
+#define BTN "res/btnclick.ogg"
+#define BGM "res/musicmenu.ogg"
 
 StartScene::StartScene()
 {
@@ -70,6 +76,20 @@ bool StartScene::init()
 	};
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keypadListener, this);
 
+	SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
+	{
+		int musicVolume = UserDefault::getInstance()->getIntegerForKey("music", 1);
+		if (musicVolume == 1)
+		{
+			SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(1);
+			SimpleAudioEngine::getInstance()->setEffectsVolume(1);
+		}
+		else
+		{
+			SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0);
+			SimpleAudioEngine::getInstance()->setEffectsVolume(0);
+		}
+	}
 
 	return true;
 }
@@ -83,6 +103,19 @@ void StartScene::menuCallback(Ref* sender)
 		Director::getInstance()->replaceScene(TransitionFade::create(0.8f, SelectScene::createScene()));
 	else if (tag == 1)
 	{
-
+		if (SimpleAudioEngine::getInstance()->getBackgroundMusicVolume() > 0)
+		{
+			SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0);
+			SimpleAudioEngine::getInstance()->setEffectsVolume(0);
+		}
+		else
+		{
+			SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(1);
+			SimpleAudioEngine::getInstance()->setEffectsVolume(1);
+		}
+		UserDefault::getInstance()->setIntegerForKey("music", (int)SimpleAudioEngine::getInstance()->getBackgroundMusicVolume());
+		UserDefault::getInstance()->flush();
 	}
+
+	SimpleAudioEngine::getInstance()->playEffect(BTN);
 }

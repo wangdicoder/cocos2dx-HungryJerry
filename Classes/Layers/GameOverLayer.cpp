@@ -7,8 +7,10 @@
 
 using namespace CocosDenshion;
 
+#define BTN "res/btnclick.ogg"
 #define STARMOVE "res/starMove.mp3"
-#define CIRCLE "estrellasale.m4a"
+#define CIRCLE "res/estrellasale.ogg"
+#define BMG "res/ganarmusica.ogg"
 
 GameOverLayer::GameOverLayer()
 {
@@ -89,6 +91,8 @@ bool GameOverLayer::init()
 	if (GameManager::getInstance()->getLevelNum() >= GameManager::getInstance()->readGameIndexFromFile() && GameManager::getInstance()->getLevelNum() < 21)
 		GameManager::getInstance()->writeGameIndexToFile();
 
+	SimpleAudioEngine::getInstance()->playBackgroundMusic(BMG);
+
 	return true;
 }
 
@@ -117,6 +121,8 @@ void GameOverLayer::menuCallback(Ref* sender)
 	{
 		Director::getInstance()->replaceScene(TransitionFade::create(0.8f, GameScene::createScene()));
 	}
+
+	SimpleAudioEngine::getInstance()->playEffect(BTN);
 }
 
 void GameOverLayer::createStar(Vec2 panelPos, int num)

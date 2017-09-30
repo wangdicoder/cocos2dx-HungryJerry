@@ -8,6 +8,16 @@
 #include "..\Sprites\Bouncer.h"
 #include "..\Sprites\Laser.h"
 #include "..\Sprites\Spike.h"
+#include "SimpleAudioEngine.h"
+
+using namespace CocosDenshion;
+
+#define BTN "res/btnclick.ogg"
+#define BGM "res/musicingame.ogg"
+#define THROW "res/tirarqueso.ogg"
+#define EAT "res/comer1.ogg"
+#define LOL "res/risacomer.ogg"
+#define SAD "res/rataqueja.ogg"
 
 #define FORCE_SCALE 6200
 
@@ -185,13 +195,13 @@ bool GameScene::init()
 				spike->runAction(RotateTo::create(0, 90));
 			this->addChild(spike);
 
-			if (levelNum == 17 || levelNum == 18)
+			if (levelNum == 10 || levelNum == 11)
 			{
 				spike->runAction(RepeatForever::create(Sequence::createWithTwoActions(EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.75f))), EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.25f))))));
 			}
 
 			//static float delayTime = 0;
-			if (levelNum == 20)
+			if (levelNum == 13)
 			{
 				spike->runAction(RepeatForever::create(Sequence::create(EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.75f))), EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.25f))), NULL)));
 			}
@@ -224,6 +234,8 @@ bool GameScene::init()
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
 
 	scheduleUpdate();
+
+	SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
 	return true;
 }
 
@@ -262,6 +274,12 @@ void GameScene::initUI()
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu);
 
+	if (GameManager::getInstance()->getLevelNum() == 1)
+	{
+		auto sp = Sprite::create("res/tuto_flecha-sheet0.png");
+		sp->setPosition(size.width*0.22, size.height*0.3);
+		this->addChild(sp);
+	}
 }
 
 void GameScene::update(float dt)
@@ -285,6 +303,7 @@ void GameScene::update(float dt)
 
 	if (cheeseVec.size() <= 0)
 	{
+		SimpleAudioEngine::getInstance()->playEffect(LOL);
 		unscheduleUpdate();
 		scheduleOnce([&](float dt){
 			GameManager::getInstance()->setStarNum(starNum);
@@ -319,6 +338,7 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 		if (nodeA->getTag() == 0 || nodeB->getTag() == 0)
 		{
 			m_mouse->playEatingAnimation();
+			SimpleAudioEngine::getInstance()->playEffect(EAT);
 			auto particle = ParticleSystemQuad::create("res/cheese_eating.plist");
 			particle->setPosition(m_mouse->getPosition());
 			this->addChild(particle);
@@ -398,6 +418,7 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			this->addChild(particle);
 
 			cheese->removeFromParentAndCleanup(true);
+			SimpleAudioEngine::getInstance()->playEffect(SAD);
 
 			scheduleOnce([&](float dt){
 				Director::getInstance()->replaceScene(TransitionFade::create(0.8f, GameScene::createScene()));
@@ -477,6 +498,7 @@ void GameScene::onTouchEnded(Touch *touch, Event *event)
 		Vec2 rotateVector = touch->getLocation() - touchCheese->getPosition();
 		float radians = rotateVector.getAngle();
 		touchCheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
+		SimpleAudioEngine::getInstance()->playEffect(THROW);
 	}
 
 	touchCheese = nullptr;
@@ -496,4 +518,6 @@ void GameScene::btnCallback(Ref *pSender)
 		Director::getInstance()->pause();
 		this->addChild(PauseLayer::create(), 5);
 	}
+
+	SimpleAudioEngine::getInstance()->playEffect(BTN);
 }
