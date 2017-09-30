@@ -91,3 +91,40 @@ void GameManager::createAnimation()
 		AnimationCache::getInstance()->addAnimation(animation, "mouse_home");
 	}
 }
+
+void GameManager::writeGameIndexToFile()
+{
+	std::string fileName = FileUtils::getInstance()->getWritablePath() + "data";
+	FILE *fp = NULL;
+
+	if (fileName.length() > 0)
+	{
+		fp = fopen(fileName.c_str(), "w+");
+		if (fp)
+		{
+			fprintf(fp, "%d", levelNum + 1);
+			fclose(fp);
+		}
+	}
+}
+
+int GameManager::readGameIndexFromFile()
+{
+	std::string fileName = FileUtils::getInstance()->getWritablePath() + "data";
+	FILE* fp = NULL;
+	char strLine[5];
+	int maxIndex = 1;
+
+	if (fileName.length() > 0)
+	{
+		fp = fopen(fileName.c_str(), "r");
+		if (fp)
+		{
+			fgets(strLine, 5, fp);
+			maxIndex = Value(strLine).asInt();
+			fclose(fp);
+		}
+	}
+
+	return maxIndex;
+}

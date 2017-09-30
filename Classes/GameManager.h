@@ -14,6 +14,8 @@ public:
 	void createAnimation();
 	CC_SYNTHESIZE(int, levelNum, LevelNum);
 	CC_SYNTHESIZE(int, starNum, StarNum);
+	int readGameIndexFromFile();
+	void writeGameIndexToFile();
 
 private:
 	static GameManager* instance;

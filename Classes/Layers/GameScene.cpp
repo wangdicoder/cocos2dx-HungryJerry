@@ -41,8 +41,8 @@ bool GameScene::init()
 	if (!BaseLayer::init())
 		return false;
 
-	GameManager::getInstance()->createAnimation();
-	GameManager::getInstance()->setLevelNum(1);
+	//GameManager::getInstance()->createAnimation();
+	//GameManager::getInstance()->setLevelNum(1);
 
 	int levelNum = GameManager::getInstance()->getLevelNum();
 	if (levelNum > 14)

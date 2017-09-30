@@ -2,6 +2,7 @@
 #include "StartScene.h"
 #include "GameScene.h"
 #include "GameManager.h"
+#include "SelectScene.h"
 #include "SimpleAudioEngine.h"
 
 using namespace CocosDenshion;
@@ -67,12 +68,26 @@ bool GameOverLayer::init()
 	scoreBg->setPosition(size.width/2, scoreBg->getContentSize().height /2 + 25);
 	this->addChild(scoreBg);
 
+	auto label = Label::createWithBMFont("res/myfont.fnt", "Score");
+	label->setPosition(scoreBg->getContentSize().width/2, scoreBg->getContentSize().height * 0.73);
+	label->setScale(1.5f);
+	scoreBg->addChild(label);
+
+	auto scoreLabel = Label::createWithBMFont("res/myfont.fnt", "18320");
+	scoreLabel->setPosition(scoreBg->getContentSize().width / 2, scoreBg->getContentSize().height * 0.3);
+	scoreLabel->setScale(2.5f);
+	scoreBg->addChild(scoreLabel);
+
 	auto touchListener = EventListenerTouchOneByOne::create();
 	touchListener->setSwallowTouches(true);
 	touchListener->onTouchBegan = [](Touch *touch, Event *event){
 		return true;
 	};
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
+
+
+	if (GameManager::getInstance()->getLevelNum() >= GameManager::getInstance()->readGameIndexFromFile() && GameManager::getInstance()->getLevelNum() < 21)
+		GameManager::getInstance()->writeGameIndexToFile();
 
 	return true;
 }
@@ -84,11 +99,19 @@ void GameOverLayer::menuCallback(Ref* sender)
 
 	if (nTag == 0)
 	{
-		
+		if (GameManager::getInstance()->getLevelNum() == 27)
+		{
+			Director::getInstance()->replaceScene(TransitionFade::create(0.8f, SelectScene::createScene()));
+		}
+		else
+		{
+			GameManager::getInstance()->setLevelNum(GameManager::getInstance()->getLevelNum() + 1);
+			Director::getInstance()->replaceScene(TransitionFade::create(0.8f, GameScene::createScene()));
+		}
 	}
 	else if (nTag == 1)
 	{
-
+		Director::getInstance()->replaceScene(TransitionFade::create(0.8f, SelectScene::createScene()));
 	}
 	else if (nTag == 2)
 	{

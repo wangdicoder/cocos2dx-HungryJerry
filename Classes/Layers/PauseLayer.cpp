@@ -2,6 +2,7 @@
 #include "StartScene.h"
 #include "GameScene.h"
 #include "GameManager.h"
+#include "SelectScene.h"
 
 PauseLayer::PauseLayer()
 {
@@ -70,7 +71,7 @@ void PauseLayer::menuCallback(Ref* sender)
 	}
 	else if (nTag == 1)
 	{
-
+		Director::getInstance()->replaceScene(TransitionFade::create(0.8f, SelectScene::createScene()));
 	}
 	else if (nTag == 2)
 	{

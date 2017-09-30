@@ -47,7 +47,7 @@ bool SelectScene::init()
 	m_curTip->setPosition(tips[0]);
 	addChild(m_curTip);
 
-	maxIndex = 5;
+	maxIndex = maxIndex = GameManager::getInstance()->readGameIndexFromFile();;
 	int index = 0;
 	int gapWidth = 80;
 	Button *btn = NULL;
@@ -78,7 +78,7 @@ bool SelectScene::init()
 			if (index <= maxIndex)
 			{
 				auto label = Label::createWithBMFont("res/myfont.fnt", Value(index).asString());
-				label->setScale(2.0f);
+				label->setScale(2.5f);
 				label->setPosition(btn->getContentSize().width / 2, btn->getContentSize().height / 2 + 2);
 				btn->addChild(label);
 			}
@@ -108,7 +108,7 @@ bool SelectScene::init()
 			if (index <= maxIndex)
 			{
 				auto label = Label::createWithBMFont("res/myfont.fnt", Value(index).asString());
-				label->setScale(2.0f);
+				label->setScale(2.5f);
 				label->setPosition(btn->getContentSize().width / 2, btn->getContentSize().height / 2 + 2);
 				btn->addChild(label);
 			}
@@ -122,6 +122,9 @@ bool SelectScene::init()
 
 	for (int i = 0; i < 2; i++){
 		for (int j = 0; j < 5; j++){
+			if (index >= 21)
+				break;
+
 			index++;
 			if (index <= maxIndex)
 				btn = Button::create("res/btnnivel-sheet0.png");
@@ -137,7 +140,7 @@ bool SelectScene::init()
 			if (index <= maxIndex)
 			{
 				auto label = Label::createWithBMFont("res/myfont.fnt", Value(index).asString());
-				label->setScale(2.0f);
+				label->setScale(2.5f);
 				label->setPosition(btn->getContentSize().width / 2, btn->getContentSize().height / 2 + 2);
 				btn->addChild(label);
 			}
