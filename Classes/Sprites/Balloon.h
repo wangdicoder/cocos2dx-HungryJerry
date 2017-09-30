@@ -22,5 +22,6 @@ public:
 
 private:
 	Size size;
+	Sprite* ball;
 };
 

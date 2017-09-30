@@ -6,7 +6,6 @@
 #include "..\Sprites\Star.h"
 #include "..\Sprites\Bouncer.h"
 #include "..\Sprites\Laser.h"
-#include "..\Sprites\Balloon.h"
 #include "..\Sprites\Spike.h"
 
 #define FORCE_SCALE 6200
@@ -51,9 +50,10 @@ bool GameScene::init()
 
 	initUI();
 
+	int levelNum = 30;
 	//read tiledMap info and render objects
 	char str[30] = { 0 };
-	sprintf(str, "levels/level%d.tmx", 6);
+	sprintf(str, "levels/level%d.tmx", levelNum);
 
 	auto map = TMXTiledMap::create(str);
 	map->setAnchorPoint(Vec2(0.5f, 0.5f));
@@ -81,6 +81,14 @@ bool GameScene::init()
 			this->addChild(cheese, 1);
 			cheeseVec.pushBack(cheese);
 		}
+		else if (item["type"].asString() == "cheese_only")
+		{
+			auto cheese = Cheese::create();
+			cheese->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(cheese, 1);
+			cheese->removePhysicsBody();
+			cheeseVec.pushBack(cheese);
+		}
 		else if (item["type"].asString() == "star")
 		{
 			auto star = Star::create();
@@ -97,11 +105,20 @@ bool GameScene::init()
 			m_mouse->setPosition(board->getPositionX(), board->getPositionY() + m_mouse->getContentSize().height / 2 + board->getContentSize().height / 2);
 			this->addChild(m_mouse);
 		}
+		else if (item["type"].asString() == "mouse_balloon")
+		{
+			m_mouse = Mouse::create();
+			m_mouse->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(m_mouse);
+			m_mouse->setIsDisplayBalloon(true);
+		}
 		else if (item["type"].asString() == "board")
 		{
 			auto board = Board::create(item["size"].asInt());
 			board->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
 			this->addChild(board);
+			/*if (item["ver"].asBool())
+				board->setRotation(90);*/
 		}
 		else if (item["type"].asString() == "bouncer")
 		{
@@ -131,6 +148,7 @@ bool GameScene::init()
 				laser->setRotation(90);
 
 			this->addChild(laser);
+
 		}
 		else if (item["type"].asString() == "balloon")
 		{
@@ -144,14 +162,30 @@ bool GameScene::init()
 
 			balloon->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
 			this->addChild(balloon);
+			balloonVec.pushBack(balloon);
 		}
 		else if (item["type"].asString() == "spike")
 		{
 			auto spike = Spike::create();
 			spike->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			if (item["ver"].asBool())
+				spike->runAction(RotateTo::create(0, 90));
 			this->addChild(spike);
+
+			if (levelNum == 17 || levelNum == 18)
+			{
+				spike->runAction(RepeatForever::create(Sequence::createWithTwoActions(EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.75f))), EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.25f))))));
+			}
+
+			//static float delayTime = 0;
+			if (levelNum == 20)
+			{
+				spike->runAction(RepeatForever::create(Sequence::create(EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.75f))), EaseSineInOut::create(MoveTo::create(1.7f, Vec2(item["x"].asFloat() + offsetX, size.height*0.25f))), NULL)));
+			}
+			//delayTime++;
 		}
 	}
+
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -197,6 +231,19 @@ void GameScene::update(float dt)
 	for (int i = 0; i < 3; ++i)
 		m_world->step(1 / 180.0f);
 
+	for (int i = 0; i < balloonVec.size(); i++)
+	{
+		balloonVec.at(i)->update(dt);
+	}
+
+	if (m_mouse->getIsDisplayBalloon())
+	{
+		m_mouse->runAction(Place::create(Vec2(m_mouse->getPositionX(), m_mouse->getPositionY() + 7)));
+		if (m_mouse->getPositionY() - m_mouse->getContentSize().height >= size.height){
+			m_mouse->runAction(Place::create(Vec2(m_mouse->getPositionX(), -m_mouse->getContentSize().height / 2)));
+		}
+	}
+
 	if (cheeseVec.size() <= 0)
 	{
 		unscheduleUpdate();
@@ -225,6 +272,8 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 
 	if (m_mouse != nullptr)
 	{
+		//log("%d, %d", nodeA->getTag(), nodeB->getTag());
+
 		if (nodeA->getTag() == 0 || nodeB->getTag() == 0)
 		{
 			m_mouse->playEatingAnimation();
@@ -236,12 +285,12 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			cheeseVec.eraseObject(cheese);
 			cheese->removeFromParentAndCleanup(true);
 		}
-		else if (nodeA->getTag() == 2)
+		else if (nodeA != nullptr && nodeA->getTag() == 2)
 		{
 			auto star = (Star*)nodeA;
 			star->remove();
 		}
-		else if (nodeB->getTag() == 2)
+		else if (nodeB != nullptr && nodeB->getTag() == 2)
 		{
 			auto star = (Star*)nodeB;
 			star->remove();

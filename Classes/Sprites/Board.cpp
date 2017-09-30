@@ -24,7 +24,10 @@ bool Board::init(int index)
 	if (!Sprite::init())
 		return false;
 
-	initWithFile("res/board_short.png");
+	if (index == 0)
+		initWithFile("res/board_short.png");
+	else
+		initWithFile("res/board_long.png");
 
 	auto body = PhysicsBody::createBox(getContentSize());
 	body->setDynamic(false);

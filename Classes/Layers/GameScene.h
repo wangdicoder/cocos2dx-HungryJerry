@@ -4,6 +4,7 @@
 #include "..\Sprites\Mouse.h"
 #include "..\Sprites\Cheese.h"
 #include "..\Sprites\SpiderNet.h"
+#include "..\Sprites\Balloon.h"
 #include "ui\CocosGUI.h"
 
 using namespace cocos2d::ui;
@@ -35,6 +36,7 @@ private:
 	void btnCallback(Ref *pSender);
 	Vector<Cheese*> cheeseVec;
 	Cheese* touchCheese;
+	Vector<Balloon*> balloonVec;
 
 };
 

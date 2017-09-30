@@ -11,5 +11,12 @@ public:
 	bool init();
 	CREATE_FUNC(Mouse);
 	void playEatingAnimation();
+	//CC_SYNTHESIZE(bool, isDisplayBalloon, IsDisplayBalloon);
+	void setIsDisplayBalloon(bool flag);
+	bool getIsDisplayBalloon(){ return isDisplayBalloon; }
+
+private:
+	Sprite* chair;
+	bool isDisplayBalloon;
 };
 

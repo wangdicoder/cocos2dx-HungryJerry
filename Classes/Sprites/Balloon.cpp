@@ -26,7 +26,6 @@ bool Balloon::init(BALL_TYPE type)
 
 	size = Director::getInstance()->getWinSize();
 
-	Sprite* ball = NULL;
 	switch (type)
 	{
 	case RED:
@@ -50,10 +49,11 @@ bool Balloon::init(BALL_TYPE type)
 	ball->addChild(rope);
 
 	auto body = PhysicsBody::createCircle(ball->getContentSize().width/2);
+	body->setContactTestBitmask(0x00);
 	body->setDynamic(false);
 	ball->setPhysicsBody(body);
 
-	scheduleUpdate();
+	//scheduleUpdate();
 
 	return true;
 }
