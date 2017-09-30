@@ -4,7 +4,9 @@
 #include "..\Sprites\Mouse.h"
 #include "..\Sprites\Cheese.h"
 #include "..\Sprites\SpiderNet.h"
+#include "ui\CocosGUI.h"
 
+using namespace cocos2d::ui;
 USING_NS_CC;
 
 class GameScene : public BaseLayer
@@ -30,5 +32,8 @@ private:
 	Vector<Sprite*> m_dotVec;
 	float m_applyForce;
 	SpiderNet* netWithCheese;
+	void btnCallback(Ref *pSender, Widget::TouchEventType type);
+
+
 };
 

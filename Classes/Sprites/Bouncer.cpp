@@ -22,6 +22,7 @@ bool Bouncer::init()
 	body->getShape(0)->setRestitution(1.0f);
 	body->getShape(0)->setFriction(0);
 	body->getShape(0)->setDensity(1.0f);
+	body->setContactTestBitmask(0x01);
 	setPhysicsBody(body);
 
 	setTag(3);

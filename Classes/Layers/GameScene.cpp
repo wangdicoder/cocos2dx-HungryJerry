@@ -48,21 +48,116 @@ bool GameScene::init()
 	this->addChild(edge);
 	edge->setTag(0);
 
+	//read tiledMap info and render objects
+	char str[30] = { 0 };
+	sprintf(str, "levels/level%d.tmx", 1);
 
-	auto board1 = Board::create();
+	auto map = TMXTiledMap::create(str);
+	map->setAnchorPoint(Vec2(0.5f, 0.5f));
+	map->setPosition(size.width / 2, size.height / 2);
+	addChild(map);
+
+	float offsetY = -(map->getContentSize().height - size.height) / 2 + map->getTileSize().height / 2;
+	float offsetX = -(map->getContentSize().width - size.width) / 2 + map->getTileSize().width / 2;
+
+	auto objLayer = map->getObjectGroup("obj");
+	auto objInfo = objLayer->getObjects();
+
+	for (int i = 0; i < objInfo.size(); i++)
+	{
+		auto item = objInfo.at(i).asValueMap();
+
+		if (item["type"].asString() == "cheese")
+		{
+			auto board = Board::create();
+			board->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(board);
+
+			m_cheese = Cheese::create();
+			m_cheese->setPosition(board->getPositionX(), board->getPositionY() + m_cheese->getContentSize().height / 2 + board->getContentSize().height / 2);
+			this->addChild(m_cheese);
+		}
+		else if (item["type"].asString() == "star")
+		{
+			auto star = Star::create();
+			star->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(star);
+		}
+		else if (item["type"].asString() == "mouse")
+		{
+			auto board = Board::create();
+			board->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(board);
+
+			m_mouse = Mouse::create();
+			m_mouse->setPosition(board->getPositionX(), board->getPositionY() + m_mouse->getContentSize().height / 2 + board->getContentSize().height / 2);
+			this->addChild(m_mouse);
+		}
+		else if (item["type"].asString() == "bouncer")
+		{
+			auto bouncer = Bouncer::create();
+			bouncer->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			bouncer->runAction(RotateTo::create(0, item["rotate"].asFloat()));
+			this->addChild(bouncer);
+		}
+		else if (item["type"].asString() == "net")
+		{
+			auto net = SpiderNet::create();
+			net->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(net);
+		}
+		else if (item["type"].asString() == "laser")
+		{
+			bool blink = item["blink"].asBool();
+			Laser* laser = NULL;
+
+			if (item["size"].asInt() == 0)
+				laser = Laser::create(0, blink);
+			else if (item["size"].asInt() == 1)
+				laser = Laser::create(1, blink);
+			
+			laser->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			if (item["ver"].asBool())
+				laser->setRotation(90);
+
+			this->addChild(laser);
+		}
+		else if (item["type"].asString() == "balloon")
+		{
+			Balloon* balloon = NULL;
+			if (item["color"].asString() == "red")
+				balloon = Balloon::create(RED);
+			else if (item["color"].asString() == "yellow")
+				balloon = Balloon::create(YELLOW);
+			else if (item["color"].asString() == "blue")
+				balloon = Balloon::create(BLUE);
+
+			balloon->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(balloon);
+		}
+		else if (item["type"].asString() == "spike")
+		{
+			auto spike = Spike::create();
+			spike->setPosition(item["x"].asFloat() + offsetX, item["y"].asFloat() + offsetY);
+			this->addChild(spike);
+		}
+	}
+
+
+	/*auto board1 = Board::create();
 	board1->setPosition(size.width*0.15f, size.height *0.2);
 	this->addChild(board1);
-	
-	m_cheese = Cheese::create();
-	m_cheese->setPosition(board1->getPositionX(), board1->getPositionY() + m_cheese->getContentSize().height / 2 + board1->getContentSize().height );
-	this->addChild(m_cheese, 1);
 
-	auto board2 = Board::create();
+	m_cheese = Cheese::create();
+	m_cheese->setPosition(board1->getPositionX(), board1->getPositionY() + m_cheese->getContentSize().height / 2 + board1->getContentSize().height);
+	this->addChild(m_cheese, 1);*/
+
+	/*auto board2 = Board::create();
 	board2->setPosition(size.width*0.8, size.height*0.5);
 	this->addChild(board2);
 
 	m_mouse = Mouse::create();
-	m_mouse->setPosition(board2->getPositionX(), board2->getPositionY() + board2->getContentSize().height / 2 + m_mouse->getContentSize().height/2);
+	m_mouse->setPosition(board2->getPositionX(), board2->getPositionY() + board2->getContentSize().height / 2 + m_mouse->getContentSize().height / 2);
 	this->addChild(m_mouse);
 
 	auto star = Star::create();
@@ -71,12 +166,12 @@ bool GameScene::init()
 
 
 	auto bouncer = Bouncer::create();
-	bouncer->setPosition(size.width * 0.8, size.height * 0.15);
-	bouncer->setRotation(-30);
-	this->addChild(bouncer);
-	
-	auto net = SpiderNet::create();
-	net->setPosition(size.width/2, size.height/2);
+	bouncer->setPosition(size.width * 0.6, size.height * 0.15);
+	bouncer->runAction(RotateTo::create(0, -30));
+	this->addChild(bouncer);*/
+
+	/*auto net = SpiderNet::create();
+	net->setPosition(size.width / 2, size.height / 2);
 	this->addChild(net);
 
 	auto net1 = SpiderNet::create();
@@ -84,13 +179,13 @@ bool GameScene::init()
 	this->addChild(net1);
 
 	auto laser = Laser::create();
-	laser->setPosition(size.width/2, size.height*0.1);
+	laser->setPosition(size.width / 2, size.height*0.1);
 	this->addChild(laser);
 
 	auto laser1 = Laser::create(1, true);
 	laser1->setPosition(size.width / 2, size.height*0.25);
 	this->addChild(laser1);
-
+*/
 	/*auto balloon1 = Balloon::create();
 	balloon1->setPosition(size.width*0.2, size.height/2);
 	this->addChild(balloon1);
@@ -104,9 +199,9 @@ bool GameScene::init()
 	this->addChild(balloon3);*/
 
 
-	auto spike = Spike::create();
+	/*auto spike = Spike::create();
 	spike->setPosition(size.width *0.3, size.height * 0.8);
-	this->addChild(spike);
+	this->addChild(spike);*/
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -154,7 +249,7 @@ void GameScene::update(float dt)
 	5: laser
 	6: balloon
 	7: thorn
-**/
+	**/
 
 bool GameScene::onContactBegin(PhysicsContact& contact)
 {
@@ -182,6 +277,18 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			auto star = (Star*)nodeB;
 			star->remove();
 		}
+		else if (nodeA->getTag() == 3 )
+		{
+			auto bouncer = (Bouncer*)nodeA;
+			float radians = CC_DEGREES_TO_RADIANS(bouncer->getRotation());
+			m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
+		}
+		else if (nodeB->getTag() == 3)
+		{
+			auto bouncer = (Bouncer*)nodeB;
+			float radians = CC_DEGREES_TO_RADIANS(bouncer->getRotation());
+			m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
+		}
 		else if (nodeA->getTag() == 4)
 		{
 			auto net = (SpiderNet*)nodeA;
@@ -206,14 +313,14 @@ bool GameScene::onContactBegin(PhysicsContact& contact)
 			}, 1.0f, "replay");
 		}
 	}
-	
-	
+
+
 	return true;
 }
 
 void GameScene::onContactSeperate(PhysicsContact& contact)
 {
-	
+
 }
 
 bool GameScene::onTouchBegan(Touch *touch, Event *event)
@@ -270,4 +377,9 @@ void GameScene::onTouchEnded(Touch *touch, Event *event)
 		float radians = rotateVector.getAngle();
 		m_cheese->getPhysicsBody()->applyImpulse(Vec2(cos(radians) * m_applyForce * FORCE_SCALE, sin(radians) * m_applyForce * FORCE_SCALE));
 	}
+}
+
+void GameScene::btnCallback(Ref *pSender, Widget::TouchEventType type)
+{
+
 }
